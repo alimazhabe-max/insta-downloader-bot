@@ -124,8 +124,7 @@ def get_today_tehran():
 # توابع اصلی
 # ============================================================
 def get_prayer_times(city="قم", country="Iran"):
-    try:
-        url = f"https://api.aladhan.com/v1/timingsByCity?city={city}&country={country}&method=8"
+        try:url = f"https://api.aladhan.com/v1/timingsByCity?city={city}&country={country}&method=7&school=0"
         response = requests.get(url, timeout=10)
         data = response.json()
         timings = data["data"]["timings"]
