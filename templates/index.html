@@ -2,12 +2,14 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقویم و اطلاعات روز</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>اطلاعات روز - تقویم و اوقات شرعی</title>
     <style>
+        /* ========== فونت ========== */
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Vazir', 'Arial', sans-serif;
+            font-family: 'Vazirmatn', 'Arial', sans-serif;
             background: linear-gradient(145deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
             display: flex;
@@ -16,38 +18,119 @@
             padding: 20px;
             color: #fff;
         }
+        .container { max-width: 800px; width: 100%; }
+
+        /* ========== کارت اصلی ========== */
         .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 32px;
-            padding: 40px 30px;
-            max-width: 650px;
-            width: 100%;
+            padding: 30px 25px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.15);
-            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.8s ease-in-out;
         }
-        .card:hover { transform: scale(1.01); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== هدر ========== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
         h1 {
-            font-size: 28px;
-            text-align: center;
-            margin-bottom: 20px;
+            font-size: 26px;
             background: linear-gradient(90deg, #f7971e, #ffd200);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
         }
+        .share-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .share-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
+
+        /* ========== انتخاب شهر ========== */
+        .city-selector {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .city-selector select {
+            padding: 12px 18px;
+            border-radius: 50px;
+            border: none;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            font-size: 16px;
+            flex: 1;
+            min-width: 150px;
+            font-family: 'Vazirmatn';
+            cursor: pointer;
+        }
+        .city-selector select option { background: #1a1a2e; color: #fff; }
+        .city-selector button {
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none;
+            background: linear-gradient(90deg, #f7971e, #ffd200);
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Vazirmatn';
+        }
+        .city-selector button:hover { transform: scale(1.05); }
+
+        /* ========== تاریخ‌ها ========== */
         .date-box {
             background: rgba(0,0,0,0.25);
             border-radius: 16px;
-            padding: 18px 20px;
-            margin-bottom: 18px;
-            border-right: 5px solid #f7971e;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            border-right: 4px solid #f7971e;
         }
-        .date-box .label { font-size: 14px; opacity: 0.7; }
-        .date-box .value { font-size: 20px; font-weight: 600; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .date-box .label { font-size: 13px; opacity: 0.7; }
+        .date-box .value { font-size: 18px; font-weight: 600; }
+
+        /* ========== مناسبت‌ها ========== */
+        .events-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin: 15px 0;
+        }
+        .events-section h3 { font-size: 16px; margin-bottom: 8px; color: #ffd200; }
+        .events-section ul { list-style: none; padding: 0; }
+        .events-section ul li { padding: 5px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .events-section ul li:last-child { border-bottom: none; }
+
+        /* ========== آب و هوا و قیمت ========== */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
         .info-card {
             background: rgba(0,0,0,0.25);
             border-radius: 16px;
@@ -55,9 +138,11 @@
             text-align: center;
             border-bottom: 3px solid #4facfe;
         }
-        .info-card .icon { font-size: 32px; margin-bottom: 8px; }
+        .info-card .icon { font-size: 32px; margin-bottom: 6px; }
         .info-card .title { font-size: 12px; opacity: 0.7; }
-        .info-card .data { font-size: 18px; font-weight: 600; }
+        .info-card .data { font-size: 17px; font-weight: 600; }
+
+        /* ========== اوقات شرعی ========== */
         .prayer-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -74,25 +159,88 @@
         }
         .prayer-item .p-name { opacity: 0.7; font-size: 12px; }
         .prayer-item .p-time { font-weight: 700; font-size: 16px; }
+
+        /* ========== زمان اذان بعدی ========== */
+        .next-prayer-box {
+            background: rgba(255,215,0,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 16px;
+            padding: 14px 18px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .next-prayer-box .icon { font-size: 28px; }
+        .next-prayer-box .info { font-size: 16px; font-weight: 600; }
+
+        /* ========== پیام انگیزشی ========== */
+        .motivation-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .motivation-box .motivation-text { font-size: 18px; font-weight: 500; }
+
+        /* ========== فوتر ========== */
         .footer {
             text-align: center;
             margin-top: 20px;
             font-size: 12px;
-            opacity: 0.5;
+            opacity: 0.4;
             border-top: 1px solid rgba(255,255,255,0.05);
             padding-top: 15px;
         }
-        @media (max-width: 500px) {
-            .grid { grid-template-columns: 1fr; }
+
+        /* ========== واکنش‌گرا (موبایل) ========== */
+        @media (max-width: 600px) {
+            .card { padding: 20px 15px; }
+            h1 { font-size: 20px; }
+            .grid-2 { grid-template-columns: 1fr; }
             .prayer-grid { grid-template-columns: 1fr 1fr; }
-            .card { padding: 25px 18px; }
+            .date-box .value { font-size: 15px; }
+            .city-selector select { font-size: 14px; padding: 10px 14px; }
+            .city-selector button { font-size: 13px; padding: 10px 18px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .share-btn { align-self: flex-start; }
+        }
+        @media (max-width: 400px) {
+            .prayer-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .prayer-item { padding: 8px 5px; font-size: 12px; }
+            .prayer-item .p-time { font-size: 13px; }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>🌟 تقویم و اطلاعات روز</h1>
 
+<div class="container">
+    <div class="card">
+
+        <!-- ===== هدر + اشتراک‌گذاری ===== -->
+        <div class="header">
+            <h1>🌟 اطلاعات روز</h1>
+            <button class="share-btn" onclick="shareWebsite()">📤 اشتراک‌گذاری</button>
+        </div>
+
+        <!-- ===== انتخاب شهر ===== -->
+        <div class="city-selector">
+            <form method="GET" action="/" style="display:flex; gap:10px; width:100%; flex-wrap:wrap;">
+                <select name="city" id="citySelect">
+                    <option value="قم" {% if selected_city == 'قم' %}selected{% endif %}>قم</option>
+                    <option value="تهران" {% if selected_city == 'تهران' %}selected{% endif %}>تهران</option>
+                    <option value="مشهد" {% if selected_city == 'مشهد' %}selected{% endif %}>مشهد</option>
+                    <option value="اصفهان" {% if selected_city == 'اصفهان' %}selected{% endif %}>اصفهان</option>
+                    <option value="شیراز" {% if selected_city == 'شیراز' %}selected{% endif %}>شیراز</option>
+                    <option value="تبریز" {% if selected_city == 'تبریز' %}selected{% endif %}>تبریز</option>
+                    <option value="کرج" {% if selected_city == 'کرج' %}selected{% endif %}>کرج</option>
+                    <option value="اهواز" {% if selected_city == 'اهواز' %}selected{% endif %}>اهواز</option>
+                </select>
+                <button type="submit">🔄 بروزرسانی</button>
+            </form>
+        </div>
+
+        <!-- ===== تاریخ‌ها ===== -->
         <div class="date-box">
             <div class="label">📅 امروز (شمسی)</div>
             <div class="value">{{ persian_date }}</div>
@@ -106,7 +254,35 @@
             <div class="value">{{ hijri_date }}</div>
         </div>
 
-        <div class="grid">
+        <!-- ===== مناسبت‌ها ===== -->
+        <div class="events-section">
+            <h3>📌 مناسبت‌های شمسی امروز</h3>
+            <ul>
+                {% if shamsi_events %}
+                    {% for event in shamsi_events %}
+                        <li>• {{ event }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>هیچ مناسبت خاصی ثبت نشده است.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="events-section">
+            <h3>📌 مناسبت‌های قمری امروز</h3>
+            <ul>
+                {% if hijri_events %}
+                    {% for event in hijri_events %}
+                        <li>• {{ event }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>هیچ مناسبت خاصی ثبت نشده است.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- ===== آب و هوا + قیمت ===== -->
+        <div class="grid-2">
             <div class="info-card">
                 <div class="icon">🌡️</div>
                 <div class="title">دما</div>
@@ -117,9 +293,28 @@
                 <div class="title">وضعیت</div>
                 <div class="data">{{ weather.condition if weather else '❌' }}</div>
             </div>
+            {% if prices %}
+            <div class="info-card">
+                <div class="icon">💰</div>
+                <div class="title">طلا (۱۸ عیار)</div>
+                <div class="data">{{ prices.gold|replace(',', '،') }} تومان</div>
+            </div>
+            <div class="info-card">
+                <div class="icon">💵</div>
+                <div class="title">دلار</div>
+                <div class="data">{{ prices.usd|replace(',', '،') }} تومان</div>
+            </div>
+            {% else %}
+            <div class="info-card">
+                <div class="icon">⚠️</div>
+                <div class="title">قیمت‌ها</div>
+                <div class="data">در دسترس نیست</div>
+            </div>
+            {% endif %}
         </div>
 
-        <h2 style="font-size:20px; margin-top:25px;">⏰ اوقات شرعی</h2>
+        <!-- ===== اوقات شرعی ===== -->
+        <h2 style="font-size:18px; margin-top:20px;">⏰ اوقات شرعی ({{ city }})</h2>
         <div class="prayer-grid">
             {% if prayer %}
                 <div class="prayer-item">
@@ -151,9 +346,46 @@
             {% endif %}
         </div>
 
-        <div class="footer">
-            🤖 ربات هوشمند 🌙 به‌روز شده با ❤️
+        <!-- ===== زمان اذان بعدی ===== -->
+        {% if next_prayer_name and next_prayer_time %}
+        <div class="next-prayer-box">
+            <div class="icon">🕋</div>
+            <div class="info">زمان باقی‌مانده تا {{ next_prayer_name }}: {{ next_prayer_time }}</div>
         </div>
+        {% endif %}
+
+        <!-- ===== پیام انگیزشی ===== -->
+        <div class="motivation-box">
+            <div style="font-size:14px; opacity:0.7;">💖 پیام انگیزشی روز</div>
+            <div class="motivation-text">{{ motivation }}</div>
+        </div>
+
+        <!-- ===== فوتر ===== -->
+        <div class="footer">
+            🤖 ربات هوشمند 🌙 به‌روز شده با ❤️ | {{ city }}
+        </div>
+
     </div>
+</div>
+
+<!-- ===== اشتراک‌گذاری ===== -->
+<script>
+function shareWebsite() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'اطلاعات روز - تقویم و اوقات شرعی',
+            text: '📅 اطلاعات امروز را ببینید!',
+            url: window.location.href
+        }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('✅ لینک کپی شد!');
+        }).catch(() => {
+            prompt('لینک را کپی کنید:', window.location.href);
+        });
+    }
+}
+</script>
+
 </body>
 </html>
