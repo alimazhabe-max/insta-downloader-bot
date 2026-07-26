@@ -376,21 +376,25 @@ def get_hijri_date(gregorian_date):
     except:
         return "نامشخص"
         
-def get_next_prayer(prayer_times):
-    """محاسبه زمان باقی‌مانده تا اذان بعدی بر اساس زمان ایران"""
-    if not prayer_times:
-        return None, None
-    
-    now = get_now_tehran()
-    
-    prayers = [
-        ("اذان صبح", prayer_times.get("اذان صبح")),
-        ("طلوع", prayer_times.get("طلوع آفتاب")),
-        ("اذان ظهر", prayer_times.get("اذان ظهر")),
-        ("اذان عصر", prayer_times.get("اذان عصر")),
-        ("اذان مغرب", prayer_times.get("اذان مغرب")),
-        ("اذان عشاء", prayer_times.get("اذان عشاء")),
-    ]
+        def get_prayer_times(city, country="Iran"):
+    try:
+        # متد ۷ = سازمان اوقاف و امور خیریه کویت (هماهنگ با باحساب)
+        url = f"https://api.aladhan.com/v1/timingsByCity?city={city}&country={country}&method=7&school=0"
+        response = retry_request(url)
+        if not response:
+            return None
+        data = response.json()
+        timings = data["data"]["timings"]
+        return {
+            "اذان صبح": timings["Fajr"],
+            "طلوع آفتاب": timings["Sunrise"],
+            "اذان ظهر": timings["Dhuhr"],
+            "اذان عصر": timings["Asr"],
+            "اذان مغرب": timings["Maghrib"],
+            "اذان عشاء": timings["Isha"],
+        }
+    except:
+        return None
     
     for name, time_str in prayers:
         if not time_str:
