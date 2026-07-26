@@ -1,0 +1,17 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    # هر 4 دقیقه یک بار اجرا شود
+    - cron: '*/4 * * * *'
+  # اجازه اجرای دستی هم داده شود
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send ping to Render
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://alxim-1.onrender.com
+          echo "✅ Ping sent!"
