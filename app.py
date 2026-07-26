@@ -528,14 +528,15 @@ def get_prayer_times(city="قم", country="Iran"):
 
 def get_weather(city="قم"):
     try:
-        url = f"https://wttr.in/{city}?format=j1"
+        # ثبت‌نام در weatherapi.com و دریافت کلید رایگان
+        api_key = "YOUR_API_KEY"
+        url = f"https://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&lang=fa"
         response = requests.get(url, timeout=10)
         data = response.json()
-        current = data["current_condition"][0]
         return {
-            "temp": f"{current['temp_C']}°C",
-            "condition": current["weatherDesc"][0]["value"],
-            "humidity": f"{current['humidity']}%",
+            "temp": f"{data['current']['temp_c']}°C",
+            "condition": data["current"]["condition"]["text"],
+            "humidity": f"{data['current']['humidity']}%",
         }
     except:
         return None
