@@ -471,7 +471,11 @@ def get_persian_date(today):
 
 def get_hijri_date(gregorian_date):
     try:
-        hijri = Gregorian(gregorian_date.year, gregorian_date.month, gregorian_date.day).to_hijri()
+        # کم کردن یک روز برای هماهنگی با تقویم ایران
+        from datetime import timedelta
+        adjusted_date = gregorian_date - timedelta(days=1)
+        
+        hijri = Gregorian(adjusted_date.year, adjusted_date.month, adjusted_date.day).to_hijri()
         hijri_months = {
             1: "محرم", 2: "صفر", 3: "ربیع‌الاول", 4: "ربیع‌الثانی",
             5: "جمادی‌الاول", 6: "جمادی‌الثانی", 7: "رجب", 8: "شعبان",
