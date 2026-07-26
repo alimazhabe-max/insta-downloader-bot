@@ -303,42 +303,6 @@ def get_today_tehran():
     now = get_now_tehran()
     return jdatetime.datetime.fromgregorian(datetime=now).date()
 
-# ============================================================
-# تابع retry_request (اضافه شد)
-# ============================================================
-def retry_request(url, timeout=10, retries=2):
-    """ارسال درخواست با تلاش مجدد در صورت بروز خطا"""
-    for attempt in range(retries):
-        try:
-            response = requests.get(url, timeout=timeout)
-            if response.status_code == 200:
-                return response
-        except:
-            if attempt < retries - 1:
-                time.sleep(1)  # منتظر ۱ ثانیه قبل از تلاش مجدد
-    return None
-
-# ============================================================
-# تابع دریافت قیمت طلا و دلار (اضافه شد)
-# ============================================================
-def get_gold_usd_prices():
-    """دریافت قیمت لحظه‌ای طلا و دلار از API برساپی"""
-    try:
-        url = "https://brsapi.ir/free-api/gold-currency"
-        response = requests.get(url, timeout=10)
-        if response.status_code != 200:
-            return None
-        data = response.json()
-        gold = data.get('gold', {}).get('18', {}).get('price')
-        usd = data.get('currency', {}).get('usd', {}).get('price')
-        if gold and usd:
-            return {
-                "gold": int(gold),
-                "usd": int(usd)
-            }
-    except Exception as e:
-        print(f"خطا در دریافت قیمت‌ها: {e}")
-    return None
 
 # ============================================================
 # توابع اصلی
