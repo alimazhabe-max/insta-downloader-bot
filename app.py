@@ -375,23 +375,44 @@ def get_hijri_date(gregorian_date):
         return f"{hijri.day} {hijri_months[hijri.month]} {hijri.year}"
     except:
         return "نامشخص"
-
+        
 def get_next_prayer(prayer_times):
     """محاسبه زمان باقی‌مانده تا اذان بعدی بر اساس زمان ایران"""
     if not prayer_times:
         return None, None
     
     now = get_now_tehran()
-    now_time = now.time()
     
     prayers = [
-        ("اذان صبح", prayer_times["Fajr"]),
-        ("طلوع", prayer_times["Sunrise"]),
-        ("اذان ظهر", prayer_times["Dhuhr"]),
-        ("اذان عصر", prayer_times["Asr"]),
-        ("اذان مغرب", prayer_times["Maghrib"]),
-        ("اذان عشاء", prayer_times["Isha"]),
+        ("اذان صبح", prayer_times.get("اذان صبح")),
+        ("طلوع", prayer_times.get("طلوع آفتاب")),
+        ("اذان ظهر", prayer_times.get("اذان ظهر")),
+        ("اذان عصر", prayer_times.get("اذان عصر")),
+        ("اذان مغرب", prayer_times.get("اذان مغرب")),
+        ("اذان عشاء", prayer_times.get("اذان عشاء")),
     ]
+    
+    for name, time_str in prayers:
+        if not time_str:
+            continue
+        try:
+            pray_time = datetime.strptime(time_str, "%H:%M").time()
+            pray_datetime = datetime.combine(now.date(), pray_time)
+            pray_datetime = TEHRAN_TZ.localize(pray_datetime)
+            
+            if pray_datetime > now:
+                delta = pray_datetime - now
+                hours = delta.seconds // 3600
+                minutes = (delta.seconds % 3600) // 60
+                if hours > 0:
+                    return name, f"{hours} ساعت و {minutes} دقیقه"
+                else:
+                    return name, f"{minutes} دقیقه"
+        except:
+            pass
+    
+    # اگر همه‌ی اذان‌های امروز گذشته باشند، اولین اذان فردا
+    return prayers[0][0], "فردا"
     
     # پیدا کردن اولین اذان بعد از زمان فعلی
     for name, time_str in prayers:
