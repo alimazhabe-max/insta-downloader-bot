@@ -9,6 +9,105 @@ import random
 app = Flask(__name__)
 
 # ============================================================
+# تنظیمات دیتابیس (SQLite) برای ذخیره‌سازی کاربران
+# ============================================================
+import sqlite3
+import os
+
+DB_PATH = "web_data.db"
+
+def init_db():
+    """ایجاد جدول کاربران در دیتابیس"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+        user_id TEXT PRIMARY KEY,
+        city TEXT DEFAULT 'قم',
+        language TEXT DEFAULT 'fa',
+        first_seen TEXT DEFAULT CURRENT_TIMESTAMP
+    )''')
+    conn.commit()
+    conn.close()
+    print("✅ دیتابیس وب‌سایت آماده شد.")
+
+def save_user(user_id, city="قم", language="fa"):
+    """ذخیره یا به‌روزرسانی اطلاعات کاربر"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''INSERT OR REPLACE INTO users (user_id, city, language)
+                 VALUES (?, ?, ?)''', (user_id, city, language))
+    conn.commit()
+    conn.close()
+
+def get_user_city(user_id):
+    """دریافت شهر ذخیره‌شده کاربر"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT city FROM users WHERE user_id = ?", (user_id,))
+    result = c.fetchone()
+    conn.close()
+    return result[0] if result else None
+
+def get_all_users():
+    """دریافت لیست همه کاربران"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT user_id, city, language FROM users")
+    result = c.fetchall()
+    conn.close()
+    return result
+
+# راه‌اندازی دیتابیس در هنگام اجرا
+init_db()
+
+# ============================================================
+# تنظیمات دیتابیس (SQLite) برای ذخیره‌سازی کاربران
+# ============================================================
+import sqlite3
+import os
+
+DB_PATH = "web_data.db"
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+        user_id TEXT PRIMARY KEY,
+        city TEXT DEFAULT 'قم',
+        language TEXT DEFAULT 'fa',
+        first_seen TEXT DEFAULT CURRENT_TIMESTAMP
+    )''')
+    conn.commit()
+    conn.close()
+    print("✅ دیتابیس وب‌سایت آماده شد.")
+
+def save_user(user_id, city="قم", language="fa"):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''INSERT OR REPLACE INTO users (user_id, city, language)
+                 VALUES (?, ?, ?)''', (user_id, city, language))
+    conn.commit()
+    conn.close()
+
+def get_user_city(user_id):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT city FROM users WHERE user_id = ?", (user_id,))
+    result = c.fetchone()
+    conn.close()
+    return result[0] if result else None
+
+def get_all_users():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT user_id, city, language FROM users")
+    result = c.fetchall()
+    conn.close()
+    return result
+
+init_db()
+
+# ============================================================
 # دیکشنری‌های فارسی
 # ============================================================
 PERSIAN_MONTHS = {
