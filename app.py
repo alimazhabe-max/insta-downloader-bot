@@ -528,17 +528,37 @@ def get_prayer_times(city="قم", country="Iran"):
 
 def get_weather(city="قم"):
     try:
-        # ثبت‌نام در weatherapi.com و دریافت کلید رایگان
-        api_key = "YOUR_API_KEY"
-        url = f"https://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&lang=fa"
-        response = requests.get(url, timeout=10)
+        # کلید OpenWeatherMap
+        api_key = "99a6ff964c16e5b0011db93521f02b72"
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric&lang=fa"
+        
+        response = requests.get(url, timeout=15)
+        
+        # اگر پاسخ ناموفق بود، None برگردان
+        if response.status_code != 200:
+            print(f"⚠️ خطا در دریافت آب و هوا: {response.status_code}")
+            return None
+            
         data = response.json()
+        
+        # بررسی وجود داده
+        if "main" not in data or "weather" not in data:
+            return None
+            
         return {
-            "temp": f"{data['current']['temp_c']}°C",
-            "condition": data["current"]["condition"]["text"],
-            "humidity": f"{data['current']['humidity']}%",
+            "temp": f"{data['main']['temp']}°C",
+            "condition": data["weather"][0]["description"],
+            "humidity": f"{data['main']['humidity']}%",
         }
-    except:
+        
+    except requests.exceptions.Timeout:
+        print("⏰ خطا: زمان درخواست آب و هوا به پایان رسید")
+        return None
+    except requests.exceptions.ConnectionError:
+        print("🔌 خطا: اتصال به سرویس آب و هوا ممکن نیست")
+        return None
+    except Exception as e:
+        print(f"❌ خطا در دریافت آب و هوا: {e}")
         return None
 
 def get_gold_usd_prices():
