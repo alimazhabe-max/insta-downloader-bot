@@ -307,25 +307,47 @@ def get_today_tehran():
 # ============================================================
 def get_prayer_times(city="قم", country="Iran"):
     try:
-        url = f"https://api.aladhan.com/v1/timingsByCity?city={city}&country={country}&method=8"
-        response = requests.get(url, timeout=10)
+        # متد ۷ = سازمان اوقاف کویت (هماهنگ با باحساب)
+        url = f"https://api.aladhan.com/v1/timingsByCity?city={city}&country={country}&method=7&school=0"
+        response = retry_request(url)
+        if not response:
+            return None
         data = response.json()
         timings = data["data"]["timings"]
+        
+        # محاسبه نیمه‌شب شرعی (میانگین مغرب و صبح)
+        maghrib = timings["Maghrib"]
+        fajr = timings["Fajr"]
+        midnight = "نامشخص"
+        try:
+            maghrib_time = datetime.strptime(maghrib, "%H:%M")
+            fajr_time = datetime.strptime(fajr, "%H:%M")
+            if fajr_time < maghrib_time:
+                fajr_time = fajr_time.replace(hour=fajr_time.hour + 24)
+            diff = (fajr_time - maghrib_time).seconds // 2
+            midnight = (datetime.combine(datetime.today(), maghrib_time.time()) + timedelta(seconds=diff)).strftime("%H:%M")
+        except:
+            midnight = timings.get("Midnight", "نامشخص")
+        
         return {
-            "Fajr": timings["Fajr"],
-            "Sunrise": timings["Sunrise"],
-            "Dhuhr": timings["Dhuhr"],
-            "Asr": timings["Asr"],
-            "Maghrib": timings["Maghrib"],
-            "Isha": timings["Isha"],
+            "اذان صبح": fajr,
+            "طلوع آفتاب": timings["Sunrise"],
+            "اذان ظهر": timings["Dhuhr"],
+            "اذان عصر": timings["Asr"],
+            "اذان مغرب": maghrib,
+            "اذان عشاء": timings["Isha"],
+            "نیمه‌شب شرعی": midnight,
         }
-    except:
+    except Exception as e:
+        print(f"خطا در دریافت اوقات شرعی: {e}")
         return None
 
 def get_weather(city="قم"):
     try:
         url = f"https://wttr.in/{city}?format=j1"
         response = requests.get(url, timeout=10)
+        if response.status_code != 200:
+            return None
         data = response.json()
         current = data["current_condition"][0]
         return {
@@ -336,26 +358,11 @@ def get_weather(city="قم"):
     except:
         return None
 
-def get_gold_usd_prices():
-    try:
-        url = "https://brsapi.ir/free-api/gold-currency"
-        response = requests.get(url, timeout=10)
-        data = response.json()
-        gold = data.get('gold', {}).get('18', {}).get('price')
-        usd = data.get('currency', {}).get('usd', {}).get('price')
-        if gold and usd:
-            return {"gold": int(gold), "usd": int(usd)}
-    except:
-        pass
-    return None
-
 def get_shamsi_events(year, month, day):
-    key = f"{month}-{day}"
-    return shamsi_events.get(key, [])
+    return shamsi_events.get(f"{month}-{day}", [])
 
 def get_hijri_events(hijri_month, hijri_day):
-    key = f"{hijri_month}-{hijri_day}"
-    return hijri_events.get(key, [])
+    return hijri_events.get(f"{hijri_month}-{hijri_day}", [])
 
 def get_persian_date(today):
     weekday = PERSIAN_WEEKDAYS[today.weekday()]
@@ -375,26 +382,20 @@ def get_hijri_date(gregorian_date):
         return f"{hijri.day} {hijri_months[hijri.month]} {hijri.year}"
     except:
         return "نامشخص"
-        
-        def get_prayer_times(city, country="Iran"):
-    try:
-        # متد ۷ = سازمان اوقاف و امور خیریه کویت (هماهنگ با باحساب)
-        url = f"https://api.aladhan.com/v1/timingsByCity?city={city}&country={country}&method=7&school=0"
-        response = retry_request(url)
-        if not response:
-            return None
-        data = response.json()
-        timings = data["data"]["timings"]
-        return {
-            "اذان صبح": timings["Fajr"],
-            "طلوع آفتاب": timings["Sunrise"],
-            "اذان ظهر": timings["Dhuhr"],
-            "اذان عصر": timings["Asr"],
-            "اذان مغرب": timings["Maghrib"],
-            "اذان عشاء": timings["Isha"],
-        }
-    except:
-        return None
+
+def get_next_prayer(prayer_times):
+    if not prayer_times:
+        return None, None
+    
+    now = get_now_tehran()
+    prayers = [
+        ("اذان صبح", prayer_times.get("اذان صبح")),
+        ("طلوع", prayer_times.get("طلوع آفتاب")),
+        ("اذان ظهر", prayer_times.get("اذان ظهر")),
+        ("اذان عصر", prayer_times.get("اذان عصر")),
+        ("اذان مغرب", prayer_times.get("اذان مغرب")),
+        ("اذان عشاء", prayer_times.get("اذان عشاء")),
+    ]
     
     for name, time_str in prayers:
         if not time_str:
@@ -403,7 +404,6 @@ def get_hijri_date(gregorian_date):
             pray_time = datetime.strptime(time_str, "%H:%M").time()
             pray_datetime = datetime.combine(now.date(), pray_time)
             pray_datetime = TEHRAN_TZ.localize(pray_datetime)
-            
             if pray_datetime > now:
                 delta = pray_datetime - now
                 hours = delta.seconds // 3600
@@ -415,29 +415,6 @@ def get_hijri_date(gregorian_date):
         except:
             pass
     
-    # اگر همه‌ی اذان‌های امروز گذشته باشند، اولین اذان فردا
-    return prayers[0][0], "فردا"
-    
-    # پیدا کردن اولین اذان بعد از زمان فعلی
-    for name, time_str in prayers:
-        try:
-            pray_time = datetime.strptime(time_str, "%H:%M").time()
-            # ترکیب با تاریخ امروز برای محاسبه دقیق
-            pray_datetime = datetime.combine(now.date(), pray_time)
-            pray_datetime = TEHRAN_TZ.localize(pray_datetime)
-            
-            if pray_datetime > now:
-                delta = pray_datetime - now
-                hours = delta.seconds // 3600
-                minutes = (delta.seconds % 3600) // 60
-                if hours > 0:
-                    return name, f"{hours} ساعت و {minutes} دقیقه"
-                else:
-                    return name, f"{minutes} دقیقه"
-        except:
-            pass
-    
-    # اگر هیچ اذانی باقی نمانده بود (همه گذشته)، اولین اذان فردا
     return prayers[0][0], "فردا"
 
 # ============================================================
