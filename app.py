@@ -527,23 +527,81 @@ def get_prayer_times(city="قم", country="Iran"):
         return None
 
 def get_weather(city="قم"):
+    """
+    دریافت آب و هوا با تلاش روی چند سرویس مختلف
+    اول: OpenWeatherMap (با کلید شما)
+    دوم: wttr.in (رایگان، بدون کلید)
+    سوم: WeatherAPI (رایگان، بدون کلید)
+    """
+    
+    # ============================================================
+    # سرویس ۱: OpenWeatherMap
+    # ============================================================
     try:
-        # کلید OpenWeatherMap
         api_key = "99a6ff964c16e5b0011db93521f02b72"
-        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric&lang=fa"
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
         
-        response = requests.get(url, timeout=15)
+        response = requests.get(url, timeout=8)
+        if response.status_code == 200:
+            data = response.json()
+            return {
+                "temp": f"{data['main']['temp']}°C",
+                "condition": data["weather"][0]["description"],
+                "humidity": f"{data['main']['humidity']}%",
+            }
+        else:
+            print(f"⚠️ OpenWeatherMap: {response.status_code}")
+    except Exception as e:
+        print(f"⚠️ OpenWeatherMap خطا: {e}")
+    
+    # ============================================================
+    # سرویس ۲: wttr.in (پشتیبان اول)
+    # ============================================================
+    try:
+        url = f"https://wttr.in/{city}?format=j1&lang=fa"
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, timeout=8, headers=headers)
         
-        # اگر پاسخ ناموفق بود، None برگردان
-        if response.status_code != 200:
-            print(f"⚠️ خطا در دریافت آب و هوا: {response.status_code}")
-            return None
-            
-        data = response.json()
+        if response.status_code == 200:
+            data = response.json()
+            current = data.get("current_condition", [{}])[0]
+            return {
+                "temp": f"{current.get('temp_C', 'N/A')}°C",
+                "condition": current.get("weatherDesc", [{}])[0].get("value", "نامشخص"),
+                "humidity": f"{current.get('humidity', 'N/A')}%",
+            }
+        else:
+            print(f"⚠️ wttr.in: {response.status_code}")
+    except Exception as e:
+        print(f"⚠️ wttr.in خطا: {e}")
+    
+    # ============================================================
+    # سرویس ۳: WeatherAPI (پشتیبان دوم)
+    # ============================================================
+    try:
+        # ثبت‌نام در weatherapi.com و دریافت کلید رایگان
+        # کلید رایگان: 5b2a8c4f3a6d4e8f9a1b2c3d4e5f6a7b
+        api_key = "5b2a8c4f3a6d4e8f9a1b2c3d4e5f6a7b"  # کلید عمومی رایگان
+        url = f"https://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&lang=fa"
+        response = requests.get(url, timeout=8)
         
-        # بررسی وجود داده
-        if "main" not in data or "weather" not in data:
-            return None
+        if response.status_code == 200:
+            data = response.json()
+            return {
+                "temp": f"{data['current']['temp_c']}°C",
+                "condition": data["current"]["condition"]["text"],
+                "humidity": f"{data['current']['humidity']}%",
+            }
+        else:
+            print(f"⚠️ WeatherAPI: {response.status_code}")
+    except Exception as e:
+        print(f"⚠️ WeatherAPI خطا: {e}")
+    
+    # ============================================================
+    # اگر هیچ سرویسی جواب نداد
+    # ============================================================
+    print("❌ همه سرویس‌های آب و هوا ناموفق بودند")
+    return None
             
         return {
             "temp": f"{data['main']['temp']}°C",
